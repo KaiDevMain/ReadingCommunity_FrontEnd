@@ -1,7 +1,8 @@
 import React from 'react'
 import Link from 'next/link';
-
+import { handleScroll } from '@/Components/Utils/scroll';
 const HeaderDesktop = ({ currentPage}: { currentPage: string } ) => {
+
   return (
     <>
     {currentPage === '' ? (

@@ -13,8 +13,10 @@ const Login = () => {
   };
 
   return (
-    <div className=''>
-      <button onClick={signIn}>ログインしてください</button>
+    <div className="bg-[url(/LoginBG.jpg)] bg-cover bg-center  h-[calc(100vh-40px)]">
+      <div className='flex justify-center items-center h-full'>
+        <button onClick={signIn} className='bg-lime-400 text-gray-500 px-4 py-2 rounded-md '>ログインしてください</button>
+      </div>
     </div>
   )
 }

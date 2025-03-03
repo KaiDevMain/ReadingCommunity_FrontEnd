@@ -21,3 +21,4 @@ const Hamburger = ({toggleMenu, changeIcon, toggleIcon}:HamburgerMenuProps) => {
 }
 
 export default Hamburger
+

@@ -1,51 +1,66 @@
 import React, { useEffect, useState } from 'react'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { auth, db } from '@/firebase';
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, DocumentData, QuerySnapshot} from 'firebase/firestore';
+import { auth } from '@/firebase';
 import { installChat } from '../../Redux/Slice/chatSlice';
 import { useAppDispatch, useAppSelector } from '@/Redux/hooks';
+import api from '@/Components/Utils/api'; 
+import socket from '@/Components/Utils/Socket';
 
+interface ChannelData {
+  _id: string
+  channelName: string
+}
 
 const Sidebar = () => {
-  const [channels, setChannels] = useState<{id: string; channelName: string;}[]>([]);
+  const [channels, setChannels] = useState<{_id: string; channelName: string;}[]>([]);
   const user = useAppSelector(state => state.auth.user);
-  const q = query(collection(db, "Channels"),orderBy("timestamp", "desc"));
   const dispatch = useAppDispatch();
 
   const addChannel = async () => {
     let channelName = prompt("新しい本について話す");
-
     if(channelName) {
-      const docRef = await addDoc(collection(db, "Channels"),{
-        channel:channelName,
-        timestamp: serverTimestamp(), 
-      });
-
-      dispatch(installChat({
-        channelId: docRef.id,
-        channelName:channelName
-      }))
+      try {
+        const response = await api.post('/channels', {
+          channelName,
+          timestamp: new Date()
+        });
+        dispatch(installChat({
+          channelId: response.data.id,
+          channelName:channelName
+        }));
+      } catch (error) {
+        console.error('チャンネルの作成に失敗しました:', error);
+      }
     }
   }
-
   useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        const response = await api.get('/channels');
+        setChannels(response.data.map((channel: { _id: string; channelName: string }) => ({
+          _id: channel._id, 
+          channelName: channel.channelName
+        })));
+      } catch (error) {
+        console.error('チャンネルの取得に失敗しました:', error);
+      }
+    };
+    fetchChannels();
 
+    const handleNewChannel = (newChannel: ChannelData) => {
+      setChannels((prevChannel) => [...prevChannel, newChannel]);
+    };
 
-    onSnapshot(q,(querySnapshot: QuerySnapshot<DocumentData>) => {
-      const channelsResults: { id: string; channelName:string }[] = [];
-      querySnapshot.docs.forEach((doc) => {
-        channelsResults.push({
-          id: doc.id,
-          channelName: (doc.data() as { channel: string }).channel,
-        })
-      })
-      setChannels(channelsResults);
-    })
-  }, [])
+    socket.on('channelAdded_socket', handleNewChannel);
+  
+    return () => {
+      socket.off('channelAdded_socket', handleNewChannel);
+    };
+
+  }, []);
   
   return (
     <div className='bg-lime-200 p-2 basis-64 lg:basis-80 flex-col justify-between h-full overflow-y-auto hidden md:flex'>
-
       <div>
         <div className='flex items-center justify-around flex-shrink-0 w-40 cursor-pointer hover:text-gray-400 duration-700' onClick={() => addChannel()}>
           <h1 className='text-base lg:text-lg font-bold '>新規本の追加</h1>
@@ -55,15 +70,15 @@ const Sidebar = () => {
         <div className='mt-3 overflow-y-auto'>
           {channels.map((channeldata) => (
              <div 
-              key={channeldata.id}
-              className=' bg-stone-50 mt-2 rounded-3xl p-2 inline-block cursor-pointer hover:bg-gray-400 duration-500 w-full' 
+              key={channeldata._id}
+              className='bg-slate-100 mt-2 rounded-3xl p-2 inline-block cursor-pointer hover:bg-gray-400 duration-500 w-full' 
               onClick={()=>dispatch(
                 installChat({
-                  channelId:channeldata.id,
+                  channelId:channeldata._id,
                   channelName:channeldata.channelName})
                 )}
                 >
-                <h1 className='text-base lg:text-lg hover:text-white duration-1000' >{channeldata.channelName}</h1>
+                <h1 className='text-base lg:text-lg hover:text-slate-100 duration-700' >{channeldata.channelName}</h1>
             </div>
           ))}
         </div>

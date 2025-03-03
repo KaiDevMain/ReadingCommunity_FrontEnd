@@ -49,10 +49,9 @@ interface Props {
             <AnimatePresence>
               <motion.div
               key={currentPage}
-              initial={{ opacity: 0, y: 400 }}
+              initial={{ opacity: 0, y: 700 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.1 }}
+              transition={{ duration: 1, delay: 0.5 }}
             >
               {children}
               </motion.div>
@@ -61,9 +60,10 @@ interface Props {
           </body>
           
       </html>
-
       </head>
     )
   }
 
 export default Layout
+
+
