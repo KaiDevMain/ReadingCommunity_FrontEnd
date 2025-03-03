@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import ChatMessage from './ChatMessage'
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { db } from '@/firebase';
 import { useAppSelector } from '@/Redux/hooks';
+import axios from 'axios';
+import socket from '@/Components/Utils/Socket';
 
-const Chat = () => {
+  const Chat = () => {
   const [inputText, setInputText] = useState("");
-  const [messages, setMessages] = useState<{ timestamp: Timestamp; message: string; user: User }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState<{ createdAt: Date; message: string; user: User }[]>([]);
   const bookTitle = useAppSelector((state) => state.chat.channelName);
   const channelId = useAppSelector((state) => state.chat.channelId);
   const user = useAppSelector((state) => state.auth.user)
@@ -18,40 +19,83 @@ const Chat = () => {
     photo: string;
   }
 
+  interface FetchMessagesData {
+    channelId: string;
+    messages: {
+      message: string;
+      user: { id: string; name: string; email: string; photo: string };
+      createdAt: Date;
+    }[];
+    message: {
+      message: string;
+      user: { id: string; name: string; email: string; photo: string };
+      createdAt: string;
+    };
+  }
+  
+  useEffect(() => {
+    if (user !== undefined) {
+      setLoading(false);
+    }
+  }, [user]);
+  
+  if (loading === null) return null; 
+
 
   useEffect(() => {
     if (!channelId) return;
-    let collectionRef = collection(
-      db,
-      "Channels",
-      channelId,
-      "messages"
-    );
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get<FetchMessagesData>(`http://localhost:5000/channels/${channelId}/messages`);
+        setMessages(response.data.messages.map(msg => ({
+          ...msg,
+          createdAt: new Date(msg.createdAt)
+        })) || []);  
+      } catch (error) {
+        console.error('メッセージの取得に失敗しました:', error);
+        setMessages([]);
+      }
+    };
 
-    const  collectionRefOrder = query(collectionRef, orderBy("timestamp", "desc"))
+    fetchMessages();
 
-    onSnapshot(collectionRefOrder, (snapshot) => {
-      let results: {timestamp: Timestamp; message: string; user: User}[] = [];
-      snapshot.docs.forEach((doc) => {
-        results.push({
-          timestamp: doc.data().timestamp,
-          message: doc.data().message,
-          user: doc.data().user,
-        });
-      });
-      setMessages(results);
-    });
-  }, [channelId])
+    const handleNewMessage = (data: FetchMessagesData) => {
+      if (data.channelId === channelId && data.message) {
+        setMessages((prevMessages) => [
+          {
+            message: data.message.message || "",
+            user: data.message.user || { id: "", name: "Unknown", email: "", photo: "" },
+            createdAt: new Date(data.message.createdAt)
+          },
+          ...prevMessages
+        ]);
+      }
+    };
+    
+    
 
-  const sendMessage = async (e:React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    socket.on('newMessage_socket', handleNewMessage);
+    
+    return () => {
+      socket.off('newMessage_socket', handleNewMessage);
+    }
+  },[channelId])
+
+  const sendMessage = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    const collectionRef = collection(db, "Channels", String(channelId), "messages");
-    const docRef = await addDoc(collectionRef, {
+    if (!inputText.trim()) return;
+
+    const newMessage = {
       message: inputText,
-      timestamp: serverTimestamp(),
       user: user,
-    });
-    setInputText("");
+    };
+
+    try {
+      const response = await axios.post(`http://localhost:5000/channels/${channelId}/messages`, newMessage)
+      setInputText("");
+    } catch (error) {
+      console.error('メッセージの送信に失敗しました:', error);
+    }
   }
   return (
     <div className='bg-lime-300 text-center p-2 flex flex-col justify-between flex-grow h-full'>
@@ -64,15 +108,14 @@ const Chat = () => {
         <>
           <div className='overflow-y-auto'>
             <h1 className='text-sm sm:text-base lg:text-lg font-bold'>{bookTitle}</h1>
-            <div className='flex-grow overflow-y-auto px-2'   style={{maxHeight: 'calc(100vh - 130px)'}}>
+            <div className='flex-grow overflow-y-auto px-2' style={{maxHeight: 'calc(100vh - 130px)'}}>
             {messages.map((message, index) => {
-            
               return (
                 <ChatMessage
                   key={index}
                   message={message.message}
-                  timestamp={message.timestamp}
                   user={message.user}
+                  createdAt={message.createdAt}
                 />
               )
             })} 
@@ -96,5 +139,4 @@ const Chat = () => {
 }
 
 export default Chat
-
 
