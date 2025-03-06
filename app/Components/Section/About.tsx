@@ -1,4 +1,4 @@
-import { _NotoSerifJP, _YuseiMagic } from '@/layout'
+import { _NotoSerifJP, _YuseiMagic } from '@/font'
 
 const About = () => {
   return (

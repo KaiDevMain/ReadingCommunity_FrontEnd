@@ -1,4 +1,4 @@
-import { _NotoSerifJP, _YuseiMagic } from '@/layout'
+import { _NotoSerifJP, _YuseiMagic } from '@/font'
 import Link from 'next/link'
 const ChatSection = () => {
   return (
