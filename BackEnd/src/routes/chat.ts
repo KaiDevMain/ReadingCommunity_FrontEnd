@@ -2,7 +2,6 @@ import express from 'express';
 import { Router, Request, RequestHandler,  Response } from 'express';
 import { Channel } from '../models/Chat';
 import { Server, Socket } from 'socket.io';
-import { timeStamp } from 'console';
 
 const chatRouter = (io: Server): Router => {
   const router = express.Router();
