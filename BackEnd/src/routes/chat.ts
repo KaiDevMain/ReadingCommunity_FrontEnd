@@ -1,7 +1,20 @@
 import express from 'express';
 import { Router, Request, RequestHandler,  Response } from 'express';
-import { Channel } from '../models/Chat';
+import { Channel } from '../models/Chat.js';
 import { Server, Socket } from 'socket.io';
+
+interface IUser {
+  id?: string | null;
+  name?: string | null;
+  email?: string | null;
+  photo?: string | null;
+}
+interface IChatMessage {
+  message: string;
+  user: IUser | null;
+  createdAt: Date;
+}
+
 
 const chatRouter = (io: Server): Router => {
   const router = express.Router();
@@ -23,11 +36,14 @@ const chatRouter = (io: Server): Router => {
         return
       }
 
-      const messages = channel.messages.map(msg => ({
-        message: msg.message,
-        user: msg.user,
-        createdAt: msg.createdAt
-      }));
+      const messages = channel.messages.map((msg) => {
+        const plainMsg = msg.toObject() as IChatMessage;
+        return {
+          message: plainMsg.message,
+          user: plainMsg.user ? plainMsg.user.name || '' : '',
+          createdAt: plainMsg.createdAt,
+        };
+      });
 
       res.status(200).json({
         channelId: channel._id,
@@ -91,4 +107,3 @@ const chatRouter = (io: Server): Router => {
   return router;
 }
 export default chatRouter;
-
