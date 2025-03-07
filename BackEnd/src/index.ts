@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
 import chatRouter from './routes/chat';
 import http from 'http';
 import { Server } from 'socket.io';
