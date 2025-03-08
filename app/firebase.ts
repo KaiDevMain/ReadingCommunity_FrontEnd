@@ -2,17 +2,16 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBqaJ636tCbu0SqMabzhHoTwq6Qx__ObpY",
-  authDomain: "bokkslounge.firebaseapp.com",
-  projectId: "bokkslounge",
-  storageBucket: "bokkslounge.firebasestorage.app",
-  messagingSenderId: "299887576976",
-  appId: "1:299887576976:web:757fb18ab363b84644d515"
+  apiKey: "AIzaSyChBmx4Fifxxa7-nkRutUZN7g7j-cjBRnI",
+  authDomain: "readingcommunity-da607.firebaseapp.com",
+  projectId: "readingcommunity-da607",
+  storageBucket: "readingcommunity-da607.firebasestorage.app",
+  messagingSenderId: "846317936837",
+  appId: "1:846317936837:web:3c869d4d13ee73a50590ac",
 };
 
 
 const app = initializeApp(firebaseConfig);
-// const db = getFirestore(app)
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
