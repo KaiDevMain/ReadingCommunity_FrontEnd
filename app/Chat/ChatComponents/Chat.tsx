@@ -41,12 +41,11 @@ import socket from '@/Components/Utils/Socket';
   
   if (loading === null) return null; 
 
-
   useEffect(() => {
     if (!channelId) return;
     const fetchMessages = async () => {
       try {
-        const response = await axios.get<FetchMessagesData>(`http://localhost:5000/channels/${channelId}/messages`);
+        const response = await axios.get<FetchMessagesData>(`${process.env.NEXT_PUBLIC_API_URL}/channels/${channelId}/messages`);
         setMessages(response.data.messages.map(msg => ({
           ...msg,
           createdAt: new Date(msg.createdAt)
@@ -91,7 +90,7 @@ import socket from '@/Components/Utils/Socket';
     };
 
     try {
-      const response = await axios.post(`http://localhost:5000/channels/${channelId}/messages`, newMessage)
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/channels/${channelId}/messages`, newMessage)
       setInputText("");
     } catch (error) {
       console.error('メッセージの送信に失敗しました:', error);

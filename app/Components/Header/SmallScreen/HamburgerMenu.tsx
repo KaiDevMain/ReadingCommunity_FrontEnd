@@ -28,7 +28,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ menuOpen, toggleMenu, tog
     let channelName = prompt("新しい本について話す");
     if(channelName) {
       try {
-        const response = await axios.post('http://localhost:5000/channels', {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/channels`, {
           channelName,
           timeStamp: new Date()
         });
@@ -44,7 +44,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ menuOpen, toggleMenu, tog
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/channels`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/channels`);
         setChannels(response.data);
       } catch (error) {
         console.error(' チャンネルの取得に失敗しました:', error);
