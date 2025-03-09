@@ -30,7 +30,7 @@ const io = new Server(server, {
     }
   });
 
-app.use('/channels', chatRouter(io as Server));
+app.use('/api/channels', chatRouter(io as Server));
 
 io.on("connection", (socket) => {
     console.log("クライアント接続しました")
