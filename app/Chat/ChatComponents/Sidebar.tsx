@@ -17,10 +17,10 @@ const Sidebar = () => {
   const dispatch = useAppDispatch();
 
   const addChannel = async () => {
-    let channelName = prompt("新しい本について話す");
+    let channelName = prompt("新規部屋を作る");
     if(channelName) {
       try {
-        const response = await api.post('/channels', {
+        const response = await api.post('/api/channels', {
           channelName,
           timestamp: new Date()
         });
@@ -36,7 +36,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        const response = await api.get('/channels');
+        const response = await api.get('/api/channels');
         setChannels(response.data.map((channel: { _id: string; channelName: string }) => ({
           _id: channel._id, 
           channelName: channel.channelName
@@ -63,24 +63,26 @@ const Sidebar = () => {
     <div className='bg-lime-200 p-2 basis-64 lg:basis-80 flex-col justify-between h-full overflow-y-auto hidden md:flex'>
       <div>
         <div className='flex items-center justify-around flex-shrink-0 w-40 cursor-pointer hover:text-gray-400 duration-700' onClick={() => addChannel()}>
-          <h1 className='text-base lg:text-lg font-bold '>新規本の追加</h1>
+          <h1 className='text-base lg:text-lg font-bold '>チャットの追加</h1>
           <AddCircleOutlineIcon/>
         </div>
         
         <div className='mt-3 overflow-y-auto'>
-          {channels.map((channeldata) => (
-             <div 
-              key={channeldata._id}
-              className='bg-slate-100 mt-2 rounded-3xl p-2 inline-block cursor-pointer hover:bg-gray-400 duration-500 w-full' 
-              onClick={()=>dispatch(
-                installChat({
-                  channelId:channeldata._id,
-                  channelName:channeldata.channelName})
-                )}
-                >
-                <h1 className='text-base lg:text-lg hover:text-slate-100 duration-700' >{channeldata.channelName}</h1>
-            </div>
-          ))}
+          {channels.map((channeldata) => 
+          {
+            return (
+            <div 
+            key={channeldata._id}
+            className='bg-slate-100 mt-2 rounded-3xl p-2 inline-block cursor-pointer hover:bg-gray-400 duration-500 w-full' 
+            onClick={()=>dispatch(
+              installChat({
+                channelId:channeldata._id,
+                channelName:channeldata.channelName})
+              )}
+              >
+              <h1 className='text-base lg:text-lg hover:text-slate-100 duration-700' >{channeldata.channelName}</h1>
+          </div>
+          )})}
         </div>
       </div>
       <div className='flex items-center'>        

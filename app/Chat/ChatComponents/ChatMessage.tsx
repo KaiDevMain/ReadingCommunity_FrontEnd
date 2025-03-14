@@ -14,17 +14,16 @@ interface MessageProps {
   createdAt: Date;
 }
 
+
 const ChatMessage:React.FC<MessageProps> = (props) => {
 const {message, user, createdAt } = props;
-const userName = user ? user.name : 'Unknown User';
-
   return (
     <div className='p-2'>
       <div className='flex items-center'>
-        <Avatar src={user?.photo}/>
+        <Avatar src={user.photo}/>
         <div className='p-1'>
           <h2>
-            {userName}
+            {user.name}
             <span className='ml-2'>{createdAt ? createdAt.toLocaleString() : '時間情報がありません'}</span>
           </h2>
         </div>
@@ -35,5 +34,3 @@ const userName = user ? user.name : 'Unknown User';
 }
 
 export default ChatMessage
-
-

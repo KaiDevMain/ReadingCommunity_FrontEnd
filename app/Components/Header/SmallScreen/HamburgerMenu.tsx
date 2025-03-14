@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 import { auth } from '@/firebase';
 import { installChat } from '@/Redux/Slice/chatSlice'
 import { useAppSelector, useAppDispatch } from '@/Redux/hooks';
-import axios from 'axios';
 import socket from '@/Components/Utils/Socket'
+import api from '@/Components/Utils/api';
 
 interface HamburgerMenuProps {
   menuOpen:boolean;
@@ -28,7 +28,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ menuOpen, toggleMenu, tog
     let channelName = prompt("新しい本について話す");
     if(channelName) {
       try {
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/channels`, {
+        const response = await api.post(`/api/channels`, {
           channelName,
           timeStamp: new Date()
         });
@@ -44,7 +44,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ menuOpen, toggleMenu, tog
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/channels`);
+        const response = await api.get(`/api/channels`);
         setChannels(response.data);
       } catch (error) {
         console.error(' チャンネルの取得に失敗しました:', error);
