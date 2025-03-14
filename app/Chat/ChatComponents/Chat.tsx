@@ -49,7 +49,6 @@ import { Yuji_Hentaigana_Akari } from 'next/font/google';
     const fetchMessages = async () => {
       try {
         const response = await api.get<FetchMessagesData>(`/api/channels/${channelId}/messages`);
-        console.log("取得したメッセージ", response.data.messages);
         setMessages(response.data.messages.reverse().map(msg => ({
           ...msg,
           createdAt: new Date(msg.createdAt)
